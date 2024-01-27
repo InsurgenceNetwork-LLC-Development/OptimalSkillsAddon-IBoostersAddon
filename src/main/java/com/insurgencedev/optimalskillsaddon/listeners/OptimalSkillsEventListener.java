@@ -4,8 +4,7 @@ import gg.optimalgames.skills.api.events.SkillExperienceGainEvent;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.insurgencedev.insurgenceboosters.api.IBoosterAPI;
-import org.insurgencedev.insurgenceboosters.models.booster.GlobalBoosterManager;
-import org.insurgencedev.insurgenceboosters.settings.IBoostersPlayerCache;
+import org.insurgencedev.insurgenceboosters.data.BoosterFindResult;
 
 public final class OptimalSkillsEventListener implements Listener {
 
@@ -13,19 +12,19 @@ public final class OptimalSkillsEventListener implements Listener {
     private void onGain(SkillExperienceGainEvent event) {
         final String TYPE = "Skills";
         final String NAMESPACE = "OPTIMAL_SKILLS";
-        double totalMulti = 0;
+        final double[] totalMulti = {1};
 
-        IBoostersPlayerCache.BoosterFindResult pResult = IBoosterAPI.getCache(event.getSkillProfile().getPlayer()).findActiveBooster(TYPE, NAMESPACE);
-        if (pResult instanceof IBoostersPlayerCache.BoosterFindResult.Success boosterResult) {
-            totalMulti += boosterResult.getBooster().getMultiplier();
+        BoosterFindResult pResult = IBoosterAPI.INSTANCE.getCache(event.getSkillProfile().getPlayer()).getBoosterDataManager().findActiveBooster(TYPE, NAMESPACE);
+        if (pResult instanceof BoosterFindResult.Success boosterResult) {
+            totalMulti[0] += boosterResult.getBoosterData().getMultiplier();
         }
 
-        GlobalBoosterManager.BoosterFindResult gResult = IBoosterAPI.getGlobalBoosterManager().findBooster(TYPE, NAMESPACE);
-        if (gResult instanceof GlobalBoosterManager.BoosterFindResult.Success boosterResult) {
-            totalMulti += boosterResult.getBooster().getMultiplier();
-        }
+        IBoosterAPI.INSTANCE.getGlobalBoosterManager().findGlobalBooster(TYPE, NAMESPACE, globalBooster -> {
+            totalMulti[0] += globalBooster.getMultiplier();
+            return null;
+        }, () -> null);
 
-        event.setExperience(calculateAmount(event.getExperience(), totalMulti));
+        event.setExperience(calculateAmount(event.getExperience(), totalMulti[0]));
     }
 
     private long calculateAmount(double amount, double multi) {
