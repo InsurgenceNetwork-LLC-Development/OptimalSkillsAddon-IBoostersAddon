@@ -12,7 +12,7 @@ public final class OptimalSkillsEventListener implements Listener {
     private void onGain(SkillExperienceGainEvent event) {
         final String TYPE = "Skills";
         final String NAMESPACE = "OPTIMAL_SKILLS";
-        final double[] totalMulti = {1};
+        final double[] totalMulti = {0};
 
         BoosterFindResult pResult = IBoosterAPI.INSTANCE.getCache(event.getSkillProfile().getPlayer()).getBoosterDataManager().findActiveBooster(TYPE, NAMESPACE);
         if (pResult instanceof BoosterFindResult.Success boosterResult) {
@@ -24,7 +24,9 @@ public final class OptimalSkillsEventListener implements Listener {
             return null;
         }, () -> null);
 
-        event.setExperience(calculateAmount(event.getExperience(), totalMulti[0]));
+        if (totalMulti[0] > 0) {
+            event.setExperience(calculateAmount(event.getExperience(), totalMulti[0]));
+        }
     }
 
     private long calculateAmount(double amount, double multi) {
