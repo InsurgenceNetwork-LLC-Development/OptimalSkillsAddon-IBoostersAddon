@@ -25,11 +25,11 @@ public final class OptimalSkillsEventListener implements Listener {
         }, () -> null);
 
         if (totalMulti[0] > 0) {
-            event.setExperience(calculateAmount(event.getExperience(), totalMulti[0]));
+            event.setExperience(Math.round(calculateAmount(event.getExperience(), totalMulti[0])));
         }
     }
 
-    private long calculateAmount(double amount, double multi) {
-        return (long) (amount * (multi < 1 ? 1 + multi : multi));
+    private double calculateAmount(double amount, double multi) {
+        return amount * (multi < 1 ? 1 + multi : multi);
     }
 }
